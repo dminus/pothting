@@ -1,6 +1,5 @@
 (defpackage pothting
   (:use :cl))
-
 (in-package :pothting)
 
 (defvar *server* nil
@@ -15,7 +14,7 @@
     <ul>
       {% for article in articles %}
         <li>
-        {{ article.1 }} - {{ article.2 }}
+        <a href=\"/article/{{ article.0 }}\">{{ article.1 }}</a>: {{ article.2 }}
         </li>
       {% endfor %}
     </ul>
@@ -27,10 +26,13 @@
   (djula:render-template* 
     (djula:compile-string *template-root*)
     nil
-    :articles (articles)))
+    :articles (list-articles)))
 
 (easy-routes:defroute root ("/" :method :get) ()
   (render-articles))
+
+(easy-routes:defroute article-route ("/article/:n") ()
+  (render-article n))
 
 (defun start-server (&key (port *port*))
   (format t "~&Starting the web server on port ~a~&" port)

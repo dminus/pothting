@@ -7,6 +7,7 @@
                :hunchentoot  ;; web server
                :easy-routes  ;; routes facility
                :djula        ;; HTML templates
+               :mito
                )
   :components ((:module "src"  ;; a src/ subdirectory
                 :components
