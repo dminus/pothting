@@ -1,19 +1,50 @@
-(in-package :pothting)
-(defun list-articles (&optional (n 5))
-  (loop for i from 0 below n 
-        collect (list i
-                      (format nil "Article (id: ~a)" i)
-                      "2026-03-09 09:33:00 -0600")))
+(defpackage pothting.articles
+  (:use :cl
+        :caveman2
+        :pothting.db
+        :mito
+        :sxql)
+  (:import-from
+        :pothting.authors)
+  (:export :article
+   :fetch-article
+   :post-article
+   :list-articles
+   :article-renderable
+   :setup-article-table))
+(in-package :pothting.articles)
 
-(defun render-article (n) (format nil "article id ~a" n))
-
-(mito:deftable author () 
-  ((nick :col-type (:varchar 64))
-   (email :col-type (:varchar 255))
-   (bio :col-type (or (:text) :null))
+(defun list-articles ()
+  (mito:retrieve-by-sql (select (:article.*) (from :article))))
 
 (mito:deftable article ()
   ((title :col-type (:varchar 255))
    (body :col-type (:text))
-   (author :col-type (:author))
+   (authored-by :col-type :integer :references (pothting.authors:author id))))
 
+(defun setup-article-table ()
+  (recreate-table 'article)
+  (migrate-table 'article))
+
+(defun post-article (&key authored-by title body)
+  (create-dao 'article :title title :body body :authored-by authored-by))
+
+(defun q-article-base ()
+  '(select
+    (:article.* (:as :author.nick :author_nick))
+    (from :article)
+    (left-join
+     (:as 'pothting.authors:author :author)
+     :on (:= :article.authored_by :author.id)
+     )
+    )
+  )
+
+(defun fetch-article (&optional (id nil))
+   (mito:retrieve-by-sql
+    (select (:article.* (:as :author.nick :author_nick))
+      (from :article)
+      (left-join (:as 'pothting.authors:author :author) :on (:= :article.authored_by :author.id))
+      (if (null id)
+          (limit 10)
+          (where (:= :article.id id))))))
