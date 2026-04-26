@@ -1,0 +1,12 @@
+
+{% extends "layouts/base.tpl" %}
+{% block title %}Articles - Pothting{% endblock %}
+{% block content %}
+    <ul>
+      {% for article in articles %}
+        <li>
+        <a href="/article/{{ article.id }}">{{ article.title }}</a>: {{ article.created_at }}
+        </li>
+      {% endfor %}
+    </ul>
+{% endblock %}
