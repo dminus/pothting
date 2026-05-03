@@ -9,11 +9,14 @@
                "cl-ppcre"
                "uiop"
                "woo"
+               "assoc-utils"
+               "marshal"
                ;; for @route annotation
                "cl-syntax-annot"
 
                ;; HTML Template
                "djula"
+               "3bmd"
 
                ;; for DB
                "mito"

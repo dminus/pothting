@@ -1,14 +1,19 @@
 (in-package :cl-user)
 (defpackage pothting.web
+  (:nicknames :pweb)
+  (:import-from :pothting.articles :article)
+  (:import-from :pothting.authors :author :validate-login :author-plist)
   (:use :cl
         :caveman2
         :pothting.config
         :pothting.view
         :pothting.db
-        :pothting.articles
         :djula
         :mito
-        :sxql)
+        :mito-auth
+        :sxql
+        :assoc-utils
+        )
   (:export :*web*))
 (in-package :pothting.web)
 
@@ -27,6 +32,45 @@
 
 (defroute "/" ()
   (render #P"articles.tpl" (list :articles (pothting.articles:fetch-article))))
+
+
+(defroute ("/about" :method :GET) ()
+  (render #P"about.tpl"))
+
+
+(defroute ("/profile" :method :GET) ()
+  (auth-required
+    (render #P"profile.tpl") (list :target_user (gethash :user *session*))))
+
+(defroute ("/profile/:id" :method :GET) (&key id)
+  (render #P"profile.tpl"
+          (list
+           :target_user (author-plist (pothting.authors:fetch-author-by-id id))
+           )))
+
+(defroute ("/login" :method :GET) ()
+  (render #P"login.tpl"))
+
+(defroute ("/login" :method :POST) (&key _parsed)
+  (if (validate-login (aget _parsed "login"))
+      (redirect "/" 302)
+      (render #P"login.tpl" (list :error "Authentication failed"))))
+
+(defroute ("/logout") ()
+    (setf (gethash :user *session*) nil)
+    (redirect "/" 302))
+
+(defun logged-in-p ()
+  (gethash :user *session*))
+
+(defmacro auth-required (&body body)
+  `(if (logged-in-p)
+      (progn ,@body)
+      (render #P"login.tpl" '(:message "Login required"))))
+
+(defun logout ()
+  (setf (gethash :user *session*) nil)
+  (redirect "/"))
 
 (defroute "/article/:id" (&key id)
   (let ((target-article (pothting.articles:fetch-article id)))

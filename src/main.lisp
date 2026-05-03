@@ -1,5 +1,6 @@
 (in-package :cl-user)
 (defpackage pothting
+  (:nicknames :poth)
   (:use :cl)
   (:import-from :pothting.config
                 :config)
@@ -15,8 +16,8 @@
 
 (defvar *handler* nil)
 
-(defun quickstart ()
-  (start :server :woo :port :8899))
+(defun quickstart (&optional (port 8989))
+  (start :server :woo :port port))
 
 (defun start (&rest args &key server port debug &allow-other-keys)
   (declare (ignore server port debug))

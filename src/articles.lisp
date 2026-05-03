@@ -1,4 +1,5 @@
 (defpackage pothting.articles
+  (:nicknames :pcont)
   (:use :cl
         :caveman2
         :pothting.db

@@ -23,9 +23,10 @@
     (unless template
       (setf template (djula:compile-template* (princ-to-string template-path)))
       (setf (gethash template-path *template-registry*) template))
+    (setf (getf env :user) (gethash :user caveman2:*session* nil))
     (apply #'djula:render-template*
-           template nil
-           env)))
+          template nil
+          env)))
 
 
 ;;
