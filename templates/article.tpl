@@ -10,7 +10,7 @@
 <hr size="50%">
   {{ viewed-article.body | md2html | safe }}
 <footer><small><em>
-	by <a href="/author/{{ viewed-article.author-nick }}">{{ viewed-article.author-nick }}</a>
+	by <a href="/profile/{{ viewed-article.author-id }}">{{ viewed-article.author-nick }}</a>
 	@ {{ viewed-article.updated-at }}
 </em></small></footer>
 </article>

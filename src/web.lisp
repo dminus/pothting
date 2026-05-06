@@ -33,14 +33,12 @@
 (defroute "/" ()
   (render #P"articles.tpl" (list :articles (pothting.articles:fetch-article))))
 
-
 (defroute ("/about" :method :GET) ()
   (render #P"about.tpl"))
 
-
 (defroute ("/profile" :method :GET) ()
   (auth-required
-    (render #P"profile.tpl") (list :target_user (gethash :user *session*))))
+    (render #P"profile.tpl" (list :target_user (gethash :user *session*)))))
 
 (defroute ("/profile/:id" :method :GET) (&key id)
   (render #P"profile.tpl"
@@ -71,6 +69,21 @@
 (defun logout ()
   (setf (gethash :user *session*) nil)
   (redirect "/"))
+
+(defroute ("/article/new" :method :GET) ()
+  (auth-required
+  (render #P"article-new.tpl")))
+
+(defroute ("/article/new" :method :POST) (&key _parsed)
+  (auth-required
+    (redirect
+     (format nil "/article/~D"
+             (mito:object-id
+              (create-dao 'pothting.articles:article
+                          :body (cdr (assoc "body" _parsed :test #'string=))
+                          :title (cdr (assoc "title" _parsed :test #'string=))
+                          :authored-by (getf (gethash :user *session*) :id)))) 302)))
+
 
 (defroute "/article/:id" (&key id)
   (let ((target-article (pothting.articles:fetch-article id)))

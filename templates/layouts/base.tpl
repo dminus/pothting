@@ -19,7 +19,13 @@
 		</ul>
 		<ul>
 		{% if user %}
-		   <li>Logged in as <a href="/profile">{{ user.email }}</a></li>
+		   <li>
+			<a href="/article/new">Create post</a>
+		   </li>
+		   <li><small>Logged in as <a href="/profile">{{ user.email }}</a>
+		   <br>
+		   <a href="/logout"><em>logout</em></a>
+		   </small></li>
 		{% else %}
 			<li><a href="/login">Login</a></li>
 		{% endif %}

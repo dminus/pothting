@@ -16,7 +16,7 @@
 (in-package :pothting.articles)
 
 (defun list-articles ()
-  (mito:retrieve-by-sql (select (:article.*) (from :article))))
+  (mito:retrieve-by-sql (select (:article.*) (from :article) (order-by (:desc :id)))))
 
 (mito:deftable article ()
   ((title :col-type (:varchar 255))
@@ -43,9 +43,10 @@
 
 (defun fetch-article (&optional (id nil))
    (mito:retrieve-by-sql
-    (select (:article.* (:as :author.nick :author_nick))
+    (select (:article.* (:as :author.nick :author_nick) (:as :author.id :author_id))
       (from :article)
       (left-join (:as 'pothting.authors:author :author) :on (:= :article.authored_by :author.id))
+      (order-by (:desc :id))
       (if (null id)
           (limit 10)
           (where (:= :article.id id))))))
