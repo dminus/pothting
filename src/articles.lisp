@@ -31,15 +31,12 @@
   (create-dao 'article :title title :body body :authored-by authored-by))
 
 (defun q-article-base ()
-  '(select
+  (-> (select
     (:article.* (:as :author.nick :author_nick))
     (from :article)
     (left-join
      (:as 'pothting.authors:author :author)
-     :on (:= :article.authored_by :author.id)
-     )
-    )
-  )
+     :on (:= :article.authored_by :author.id)))))
 
 (defun fetch-article (&key (before-id nil) (page-size 10) (id nil))
    (mito:retrieve-by-sql
@@ -47,8 +44,12 @@
       (from :article)
       (left-join (:as 'pothting.authors:author :author) :on (:= :article.authored_by :author.id))
       (order-by (:desc :id))
+      (limit page-size)
       (if (null id)
           (if (null before-id)
-              (limit page-size)
-              (list (where (:> :article.id before-id)) (limit page-size)))
-          (where (:= :article.id id))))))
+              (where (:> :article.id -1))
+              (where (:< :article.id before-id)))
+          (where (:= :article.id id)))
+      )
+    )
+  )

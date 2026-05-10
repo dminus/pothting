@@ -30,8 +30,12 @@
 ;;
 ;; Routing rules
 
-(defroute "/" ()
-  (render #P"articles.tpl" (list :articles (pothting.articles:fetch-article))))
+(defroute "/" (&key (|before| nil))
+  (render #P"articles.tpl"
+          (list :articles
+                (if (null |before|)
+                    (pothting.articles:fetch-article)
+                    (pothting.articles:fetch-article :before-id |before|)))))
 
 (defroute ("/about" :method :GET) ()
   (render #P"about.tpl"))
@@ -86,7 +90,7 @@
 
 
 (defroute "/article/:id" (&key id)
-  (let ((target-article (pothting.articles:fetch-article id)))
+  (let ((target-article (pothting.articles:fetch-article :id id)))
   (if (null target-article)
       (throw-code 404)
       (render #P"article.tpl" (list :viewed-article (first target-article))))))
