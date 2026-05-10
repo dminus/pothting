@@ -41,12 +41,14 @@
     )
   )
 
-(defun fetch-article (&optional (id nil))
+(defun fetch-article (&key (before-id nil) (page-size 10) (id nil))
    (mito:retrieve-by-sql
     (select (:article.* (:as :author.nick :author_nick) (:as :author.id :author_id))
       (from :article)
       (left-join (:as 'pothting.authors:author :author) :on (:= :article.authored_by :author.id))
       (order-by (:desc :id))
       (if (null id)
-          (limit 10)
+          (if (null before-id)
+              (limit page-size)
+              (list (where (:> :article.id before-id)) (limit page-size)))
           (where (:= :article.id id))))))
